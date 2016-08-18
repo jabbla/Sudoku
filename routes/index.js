@@ -147,6 +147,8 @@ router.post('/signup',function(req,res,next){
 	//保存到数据库
 	var data = req.body;
 	saveUser(data).then(function(doc){
+		return readRank(doc);
+	}).then(function(doc){
 		res.cookie('user',doc);
 		res.send(doc);
 	}).catch(function(err){
