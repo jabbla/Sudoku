@@ -1,5 +1,7 @@
 var express = require('express');
 var router = express.Router();
+var fs = require('fs');
+
 
 var boardModel = require('../data/models/boardModel.js');
 var levelModel = require('../data/models/levelModel.js');
@@ -57,7 +59,26 @@ var ModelFind = function(model,obj,data){
 		});
 	});
 };
-
+var readRank = function(data1){
+	return new promise(function(resolve,reject){
+		fs.readFile(__dirname+'/../data/rank.json','utf-8',function(err,data){
+			if(err){
+				reject(err)
+			}else{
+				var temp = {
+					userName: data1.userName,
+					password: data1.password,
+					email: data1.email,
+					gameInfo: data1.gameInfo,
+					current: data1.current,
+					rankInfo: JSON.parse(data),
+				}
+				
+				resolve(temp);
+			}
+		})
+	})	
+}
 /* GET home page. */
 router.get('/', function(req, res, next) {
 	console.log(req);
@@ -163,7 +184,9 @@ router.post('/signin',function(req,res,next){
 	//查找数据库
 	var data = req.body;
 	findModel(data).then(function(result){
-		
+		//读取rank文件
+		return readRank(result);
+	}).then(function(result){
 		res.cookie('user',result);
 		res.send(result);
 	}).catch(function(err){
